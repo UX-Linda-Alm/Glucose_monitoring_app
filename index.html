@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glucose-monitoring-app</title>
+<style>
+:root{color-scheme:dark;--bg:#121212;--cd:#262626;--mu:#d9d9d9;--g:#5fd068;--o:#f5a030;--r:#ff3b4f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:480px;margin:auto;min-height:100dvh;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+h1{font-size:22px;font-weight:500;margin:0}h2{font-size:19px;font-weight:500;margin:20px 0 8px}
+.av{width:44px;height:44px;border-radius:50%;background:#444;display:grid;place-items:center}
+select,input[type=number]{font:inherit;color:#fff;background:var(--cd);border:1px solid #8a8a8a;border-radius:8px;padding:8px 12px;min-height:44px}
+#sel{padding:0 16px}#sel select{width:100%}
+main{flex:1;padding:8px 16px 16px}
+:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.ring{width:230px;height:230px;margin:18px auto;border-radius:50%;background:#000;border:16px solid var(--c);box-shadow:0 0 28px var(--c),inset 0 0 12px var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring b{font-size:60px;line-height:1}.ring i{font-style:normal;font-size:44px;line-height:1.1}
+.pg{text-align:center;font-size:18px;margin:0 0 8px}
+svg text{fill:#e8e8e8;font-size:10px}
+small,.nt{color:var(--mu);font-size:14px}
+nav{position:sticky;bottom:0;display:flex;gap:4px;background:var(--cd);margin:0 8px 8px;padding:6px;border-radius:12px}
+nav button{flex:1;min-height:56px;background:none;color:#fff;border:1px solid transparent;border-radius:8px;font:13px system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button[aria-current=page]{border-color:#bbb}
+.mr{width:30px;height:30px;border-radius:50%;border:3px solid var(--c);background:#000;font-size:11px;font-weight:700;display:grid;place-items:center}
+.row{display:flex;align-items:center;gap:12px;background:var(--cd);border-radius:10px;padding:10px 12px;margin:0 0 8px}
+.row .t{text-align:center;font-size:14px;min-width:56px}.row div{flex:1}
+.pill{display:inline-block;border:1px solid;border-radius:10px;padding:2px 14px;margin-top:2px;font-size:18px}
+.pl{background:#8f0a1e;border-color:var(--r)}.ph{background:#6b4a00;border-color:var(--o)}
+.cm{color:var(--mu);font-size:14px;margin-top:4px}
+label.s{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;background:var(--cd);border-radius:10px;padding:4px 12px;margin:0 0 8px}
+label.s input[type=checkbox]{width:24px;height:24px}
+button.b{font:inherit;color:#fff;background:#3b3b3b;border:1px solid #bbb;border-radius:8px;min-height:44px;padding:8px 14px}
+#al{margin:4px 16px;padding:12px;border-radius:10px;background:#8f0a1e;border:2px solid #fff}#al:empty{display:none}
+#al p{margin:0 0 8px;font-size:18px}#al div{display:flex;gap:8px;flex-wrap:wrap}
+#cs{position:fixed;inset:0;background:var(--bg);overflow:auto;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));z-index:9}#cs>div{max-width:480px;margin:auto}
+</style></head><body>
+<div id="app">
+<header><h1>Anhörig-appen</h1><span class="av" role="img" aria-label="Inloggad anhörig (fiktiv)"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7z"/></svg></span></header>
+<div id="al" role="alert"></div>
+<div id="sel"><select id="ps" aria-label="Välj person"></select></div>
+<main id="m"></main>
+<nav aria-label="Huvudmeny"><button data-v="n"></button><button data-v="l"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22zm7-6V11c0-3.2-1.7-5.9-4.7-6.6V3.7a2.3 2.3 0 0 0-4.6 0v.7C6.7 5.1 5 7.8 5 11v5l-2 2v1h18v-1z"/></svg>Larm-logg</button><button data-v="s"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.500 7.500 0 0 0-1.700-1L15 3h-4l-.4 2.900a7.500 7.500 0 0 0-1.700 1l-2.500-1-2 3.500L6.600 11a7.600 7.600 0 0 0 0 2l-2.100 1.600 2 3.500 2.500-1c.5.400 1.100.700 1.700 1L11 21h4l.4-2.900c.6-.3 1.200-.6 1.700-1l2.500 1 2-3.500zM13 15.500a3.500 3.500 0 1 1 0-7 3.500 3.500 0 0 1 0 7z"/></svg>Inställningar</button></nav>
+</div>
+<div id="cs" role="dialog" aria-modal="true" aria-labelledby="ct" hidden><div>
+<h1 id="ct">Samtycke och friskrivning</h1>
+<p><b>Hjälpmedel, inte behandlingsunderlag.</b> Anhörig-appen är endast ett hjälpmedel. Värden, trendpilar, prognoser och larm får inte ligga till grund för beslut om behandling. Kontakta alltid vården vid oro.</p>
+<p><b>Dina uppgifter.</b> Glukosvärden, tidsstämplar och larmloggen sparas endast lokalt i den här webbläsaren i högst 7 dagar och skrivs därefter över eller raderas. Inget delas eller bearbetas utanför appen. Namn och bilder i prototypen är fiktiva och glukosdata genereras av en simulator.</p>
+<p><b>Rättigheter.</b> Du kan när som helst radera all data eller återkalla samtycket under Inställningar.</p>
+<label class="s"><span>Jag har läst och samtycker till lagring av data lokalt i webbläsaren.</span><input type="checkbox" id="ok"></label>
+<button class="b" id="go" disabled>Godkänn och starta</button></div></div>
+<script>
+const LS='ha_v1',P=[{id:'m',n:'Madicken Mickelsson'},{id:'a',n:'Alfons Mickelsson'}];
+const DEF=()=>({c:0,s:{t:{aL:3.5,wL:4.5,wH:12,aH:15},on:{aL:1,wL:1,wH:1,aH:1,pr:1,fa:1},ak:3,vr:1,vol:.6,vib:0},r:{m:[],a:[]},l:[]});
+const ld=()=>{try{return JSON.parse(localStorage[LS])}catch{return null}};
+const sv=()=>{try{localStorage[LS]=JSON.stringify(D)}catch{}};
+let D=ld()||DEF(),sel='m',view='n',B=null,G={},T,ac;
+const ST={m:{k:null,t:0,z:0,c:0},a:{k:null,t:0,z:0,c:0}};
+const $=s=>document.querySelector(s),f=x=>x.toFixed(1).replace('.',','),hm=t=>new Date(t*1e3).toTimeString().slice(0,5);
+const K={aL:['Akut-larm för lågt glukosvärde:','l'],aH:['Akut-larm för högt glukosvärde:','h'],wL:['Varning om lågt glukosvärde:','l'],wH:['Varning om högt glukosvärde:','h'],fD:['Kraftigt fallande glukosvärde:','l'],fU:['Kraftigt stigande glukosvärde:','h'],pL:['Prognos-notis: närmar sig låg nivå:','l'],pH:['Prognos-notis: närmar sig hög nivå:','h']};
+const CM=['Jag mår bra och äter något nu.','Jag känner mig lite yr.','Jag tog mitt insulin nu.','Jag tar en promenad.','Allt är under kontroll.'];
+
+// JavaScript-port av glucose_generator.py (samma regler: 2–16, steg 0,5–2, riktningslås 5 steg vid <3 / >14)
+function Gen(last){let v=last??+(3+Math.random()*12).toFixed(1),dir=Math.random()<.5?1:-1,fd=0,fl=0,keep=0;
+ const lim=x=>{if(x<3){fd=1;fl=5;keep=0}else if(x>14){fd=-1;fl=5;keep=0}};lim(v);
+ return{get v(){return v},next(){
+  if(fl>0){dir=fd;fl--;keep=0}else if(keep)keep=0;else dir=Math.random()<.5?1:-1;
+  const raw=Math.random()*2,small=raw<.5,room=d=>d>0?16-v:v-2;let st=Math.round(Math.max(raw,.5)*10)/10,d=dir;
+  if(room(d)<.5-1e-9)d=-d;st=Math.min(st,room(d));v=Math.round((v+d*st)*10)/10;
+  if(small&&d===dir&&fl==0)keep=1;dir=d;lim(v);return v}}}
+
+function fill(id){const g=Gen(),r=[],n=2160,now=Date.now()/1e3|0;r.push([now-n*10,Math.round(g.v*10)]);for(let i=1;i<=n;i++)r.push([now-(n-i)*10,Math.round(g.next()*10)]);D.r[id]=r;G[id]=g}
+function M(r){const n=r.length,c=r[n-1][1]/10,a=(r[n-1][1]-r[Math.max(0,n-4)][1])/10/3,net=(r[n-1][1]-r[Math.max(0,n-7)][1])/10;
+ return{c,net,fc:Math.min(16,Math.max(2,Math.round((c+2*a)*10)/10)),ar:a>.5?'↗':a<-.5?'↘':'→',tx:a>.5?'Ökar':a<-.5?'Sjunker':'Stabilt'}}
+const col=c=>c<=D.s.t.wL?'var(--r)':c>=D.s.t.wH?'var(--o)':'var(--g)';
+
+function snd(k){const a=k[0]=='a';if(navigator.vibrate)navigator.vibrate(a?[400,150,400,150,400]:[300,150,300]);if(D.s.vib)return;
+ try{ac=ac||new AudioContext();const F=[[880],[660,990],[520,780,520,780]][(a?D.s.ak:D.s.vr)-1];let t=ac.currentTime+.05;
+ for(let j=0;j<(a?4:2);j++){for(const fr of F){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=fr;g.gain.value=D.s.vol*.4;o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.18);t+=.25}t+=.4}}catch{}}
+
+function chk(p,r,now){const S=ST[p.id],m=M(r),t=D.s.t,o=D.s.on,c=m.c;
+ const L=[[c<=t.aL&&o.aL,'aL'],[c>=t.aH&&o.aH,'aH'],[c<=t.wL&&o.wL,'wL'],[c>=t.wH&&o.wH,'wH'],[o.fa&&m.net<=-5,'fD'],[o.fa&&m.net>=5,'fU'],[o.pr&&m.fc<=t.wL,'pL'],[o.pr&&m.fc>=t.wH,'pH']];
+ const k=(L.find(x=>x[0])||[])[1]||null;if(!k){S.k=null;return}
+ const ak=k[0]=='a';if(k===S.k&&!(ak&&now-S.t>60))return;
+ if(!ak&&(S.z>now||now-S.c<90))return;
+ S.k=k;S.t=now;if(!ak)S.c=now;
+ D.l.unshift({p:p.id,t:now,k,v:c,a:m.ar,c:!k.startsWith('p')&&Math.random()<.5?CM[Math.random()*CM.length|0]:''});
+ B={p:p.id,k,v:c};snd(k)}
+
+function tick(){const now=Date.now()/1e3|0,cut=now-7*864e2*1;
+ for(const p of P){const r=D.r[p.id];r.push([now,Math.round(G[p.id].next()*10)]);const c7=now-604800;while(r[0][0]<c7)r.shift();chk(p,r,now)}
+ D.l=D.l.filter(e=>e.t>now-604800);sv();chrome();if(view!='s')main()}
+
+function chart(r){const now=r[r.length-1][0],st=now-21600,Bk=Array.from({length:72},()=>[0,0]),t=D.s.t,y=v=>172-(v-2)*11.5;
+ for(const[x,v]of r)if(x>=st){const b=Math.min(71,(x-st)/300|0);Bk[b][0]+=v/10;Bk[b][1]++}
+ let s='<svg viewBox="0 0 340 196" width="100%" role="img" aria-label="Glukoshistorik, senaste 6 timmarna">';
+ for(const g of[3,6,9,12,15])s+=`<line x1="26" x2="338" y1="${y(g)}" y2="${y(g)}" stroke="#666"/><text x="2" y="${y(g)+3}">${g}</text>`;
+ Bk.forEach(([a,n],i)=>{if(!n)return;const v=a/n;s+=`<rect x="${27+i*4.3}" y="${y(v)}" width="3.3" height="${172-y(v)}" fill="${v<=t.wL?'#ff3b4f':v>=t.wH?'#f5a030':'#5fd068'}"/>`});
+ s+=`<line x1="26" x2="338" y1="${y(t.wH)}" y2="${y(t.wH)}" stroke="#f5a030" stroke-width="1.5" stroke-dasharray="6 4"/><line x1="26" x2="338" y1="${y(t.wL)}" y2="${y(t.wL)}" stroke="#ff3b4f" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+ [0,18,36,54].forEach(i=>s+=`<text x="${27+i*4.3}" y="190">${hm(st+i*300)}</text>`);
+ return s+`<text x="338" y="190" text-anchor="end">${hm(now)}</text></svg>`}
+
+function chrome(){const m=M(D.r[sel]),n=document.querySelector('[data-v=n]');
+ n.innerHTML=`<span class="mr" style="--c:${col(m.c)}">${f(m.c)}</span>Nu`;
+ document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.v==view?'page':'false'));
+ const al=$('#al');if(B){const p=P.find(x=>x.id==B.p);al.innerHTML=`<p><b>${p.n.split(' ')[0]}:</b> ${K[B.k][0]} ${f(B.v)} mmol/L</p><div><button class="b" data-a="ok">Kvittera</button>${B.k[0]!='a'?'<button class="b" data-a="5">Snooza 5 min</button><button class="b" data-a="10">Snooza 10 min</button>':''}</div>`}else al.innerHTML=''}
+
+function main(){const r=D.r[sel],m=M(r),el=$('#m');
+ if(view=='n')el.innerHTML=`<div class="ring" style="--c:${col(m.c)}"><b>${f(m.c)}</b><span>Glukos, mmol/L</span><i role="img" aria-label="Trend: ${m.tx}">${m.ar}</i></div><p class="pg">Prognos nästa värde: ${f(m.fc)} mmol/L</p>${chart(r)}<p class="nt">Simulerad, fiktiv data. Endast ett hjälpmedel, inte underlag för behandlingsbeslut.</p>`;
+ else if(view=='l'){const L=D.l.filter(e=>e.p==sel);let h='',d0='';
+  for(const e of L){const d=new Date(e.t*1e3),w=d.toLocaleDateString('sv-SE',{weekday:'long'}),dd=w[0].toUpperCase()+w.slice(1)+' - '+d.toLocaleDateString('sv-SE',{day:'numeric',month:'long'});
+   if(dd!=d0){h+=`<h2>${dd}</h2>`;d0=dd}
+   h+=`<div class="row"><span class="t"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.5-2.5h-5A2.5 2.5 0 0 0 12 22zm7-6V11c0-3.2-1.7-5.9-4.7-6.6V3.7a2.3 2.3 0 0 0-4.6 0v.7C6.7 5.1 5 7.8 5 11v5l-2 2v1h18v-1z"/></svg><br>kl ${hm(e.t)}</span><div>${K[e.k][0]}<br><span class="pill p${K[e.k][1]}">${f(e.v)} mmol/L ${e.a}</span>${e.c?`<div class="cm">Från brukaren: “${e.c}”</div>`:''}</div></div>`}
+  el.innerHTML=h||'<p>Inga larm de senaste 7 dagarna. Nya larm visas här.</p>';el.insertAdjacentHTML('beforeend','<p class="nt">Loggen sparas i 7 dagar och raderas därefter.</p>')}
+ else{const t=D.s.t,o=D.s.on,rw=[['aL','Akutlarm lågt värde, högst'],['wL','Förvarning lågt värde, högst'],['wH','Förvarning högt värde, minst'],['aH','Akutlarm högt värde, minst']],so=v=>['Pip','Dubbelton','Sirén'].map((n,i)=>`<option value="${i+1}"${v==i+1?' selected':''}>${n}</option>`).join('');
+  el.innerHTML=`<h2>Larmnivåer (mmol/L)</h2>`+rw.map(([k,n])=>`<label class="s"><span><input type="checkbox" data-o="${k}"${o[k]?' checked':''}> ${n}</span><input type="number" step="0.1" min="2.5" max="15.5" data-t="${k}" value="${t[k]}" aria-label="${n}"></label>`).join('')+
+  `<label class="s"><span>Prognos-notis när värdet närmar sig larmnivå</span><input type="checkbox" data-o="pr"${o.pr?' checked':''}></label><label class="s"><span>Larma vid kraftig förändring</span><input type="checkbox" data-o="fa"${o.fa?' checked':''}></label>
+  <h2>Ljud och vibration</h2><label class="s"><span>Ljud akutlarm</span><select data-sn="ak">${so(D.s.ak)}</select></label><label class="s"><span>Ljud förvarning</span><select data-sn="vr">${so(D.s.vr)}</select></label>
+  <label class="s"><span>Ljudnivå</span><input type="range" min="0.1" max="1" step="0.1" value="${D.s.vol}" data-vol aria-label="Ljudnivå"></label><label class="s"><span>Endast vibration</span><input type="checkbox" data-vib${D.s.vib?' checked':''}></label>
+  <button class="b" data-test="aL">Testa akutljud</button> <button class="b" data-test="wL">Testa förvarningsljud</button>
+  <h2>Integritet och friskrivning</h2><p class="nt">Data lagras endast lokalt i webbläsaren i högst 7 dagar och delas aldrig. Appen är ett hjälpmedel och inte underlag för behandlingsbeslut.</p><button class="b" data-del="1">Radera all data</button> <button class="b" data-del="2">Återkalla samtycke</button>`}}
+
+function draw(){chrome();main()}
+function start(){for(const p of P){const r=D.r[p.id],now=Date.now()/1e3;if(!r.length||now-r[r.length-1][0]>21600)fill(p.id);else G[p.id]=Gen(r[r.length-1][1]/10)}
+ sv();draw();clearInterval(T);T=setInterval(tick,10000)}
+function consent(show){$('#cs').hidden=!show;if(show){clearInterval(T);$('#ok').checked=false;$('#go').disabled=true}}
+
+$('#ps').innerHTML=P.map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
+$('#ps').onchange=e=>{sel=e.target.value;draw()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{view=b.dataset.v;draw()});
+$('#ok').onchange=e=>$('#go').disabled=!e.target.checked;
+$('#go').onclick=()=>{D.c=Date.now();consent(0);try{ac=ac||new AudioContext()}catch{}start()};
+$('#al').onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a!='ok')ST[B.p].z=Date.now()/1e3+a*60;B=null;chrome()};
+$('#m').addEventListener('change',e=>{const x=e.target,s=D.s;
+ if(x.dataset.o)s.on[x.dataset.o]=x.checked?1:0;
+ else if(x.dataset.t){const t={...s.t,[x.dataset.t]:+x.value};if(t.aL<t.wL&&t.wL<t.wH&&t.wH<t.aH)s.t=t;else{x.value=s.t[x.dataset.t];alert('Nivåerna måste gå i ordning: akut lågt < förvarning lågt < förvarning högt < akut högt.')}}
+ else if(x.dataset.sn)s[x.dataset.sn]=+x.value;else if('vol'in x.dataset)s.vol=+x.value;else if('vib'in x.dataset)s.vib=x.checked?1:0;sv()});
+$('#m').addEventListener('click',e=>{const x=e.target;
+ if(x.dataset.test)snd(x.dataset.test);
+ if(x.dataset.del&&confirm(x.dataset.del==1?'Radera alla sparade värden och larm?':'Återkalla samtycke och radera all data?')){const c=D.c;D=DEF();B=null;if(x.dataset.del==1){D.c=c;start()}else{try{localStorage.removeItem(LS)}catch{}consent(1)}}});
+if(D.c)start();else consent(1);
+</script></body></html>
