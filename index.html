@@ -92,20 +92,28 @@
         outline: 3px solid #fff;
         outline-offset: 2px;
       }
+      .ok {
+        --c1:#145a1b;--c2:#6cc070
+      }
+      .hi {
+        --c1:#7a5200;--c2:#f79b2b
+      }
+      .lo {
+        --c1:#a0001c;--c2:#e0002e
+      }
       .ring {
-        width: 230px;
-        height: 230px;
-        margin: 18px auto;
-        border-radius: 50%;
-        background: #000;
-        border: 16px solid var(--c);
-        box-shadow:
-          0 0 28px var(--c),
-          inset 0 0 12px var(--c);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        width:250px;
+        height:226px;
+        margin:18px auto;
+        border-radius:9999px;
+        border:solid transparent;
+        border-width:2px 20px;
+        background:linear-gradient(#141414,#141414) padding-box, linear-gradient(to bottom,var(--c1) 0%,var(--c2) 25%,var(--c2) 60%,var(--c1) 100%) border-box;
+        box-shadow:0 0 26px 2px color-mix(in srgb,var(--c2) 65%,transparent);
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center
       }
       .ring b {
         font-size: 60px;
@@ -600,7 +608,7 @@
           m = M(r),
           el = $("#m");
         if (view == "n")
-          el.innerHTML = `<div class="ring" style="--c:${col(m.c)}"><b>${f(m.c)}</b><span>Glukos, mmol/L</span><i role="img" aria-label="Trend: ${m.tx}">${m.ar}</i></div><p class="pg">Prognos nästa värde: ${f(m.fc)} mmol/L</p>${chart(r)}<p class="nt">Simulerad, fiktiv data. Endast ett hjälpmedel, inte underlag för behandlingsbeslut.</p>`;
+          el.innerHTML = `<div class="ring ${m.c<=D.s.t.wL?'lo':m.c>=D.s.t.wH?'hi':'ok'}"><b>${f(m.c)}</b><span>Glukos, mmol/L</span><i role="img" aria-label="Trend: ${m.tx}">${m.ar}</i></div><p class="pg">Prognos nästa värde: ${f(m.fc)} mmol/L</p>${chart(r)}<p class="nt">Simulerad, fiktiv data. Endast ett hjälpmedel, inte underlag för behandlingsbeslut.</p>`;
         else if (view == "l") {
           const L = D.l.filter((e) => e.p == sel);
           let h = "",
