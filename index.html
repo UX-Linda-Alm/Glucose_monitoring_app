@@ -519,15 +519,16 @@
         <div id="smb"></div>
       </div>
     </div>
-    <div id="cs" role="dialog" aria-modal="true" aria-labelledby="ct" hidden>
+    <div id="cs" role="dialog" aria-modal="true" aria-labelledby="ct" aria-describedby="cs-desc" hidden>
       <div>
         <h1 id="ct">Välkommen till Distant Glow!</h1>
+        <div id="cs-desc">
         <p>
           <b>Övervaka anhörigas glukosvärden.</b> Appen ger dig en 
           möjlighet att ta emot larm och varningar från personer som valt 
           att dela sina glukosvärden med dig.
         </p>
-        <h1 id="ct"><br>Samtycke och friskrivning</h1>
+        <h2><br>Samtycke och friskrivning</h2>
         <p>
           <b>Hjälpmedel, inte behandlingsunderlag.</b> Appen Distant Glow är endast
           ett hjälpmedel. Värden, trendpilar, prognoser och larm får inte ligga
@@ -671,9 +672,9 @@
             127, 131, 133, 134, 133, 130, 127, 123, 118, 114, 111, 109, 108,
             107, 105, 102, 97, 93, 89, 86, 84, 84, 84, 83, 82, 80, 78, 75, 72,
             70, 68, 66, 65, 64, 64, 64, 65, 66, 67, 68, 69, 69, 70, 71, 71, 72,
-            73, 73, 73, 73, 73, 71, 70, 68, 67, 65, 64, 63, 62, 57, 50, 43, 38,
-            36, 36, 36, 35, 35, 34, 33, 32, 32, 31, 31, 32, 33, 34, 35, 36, 36,
-            36,
+            73, 73, 73, 71, 70, 68, 67, 65, 64, 63, 62, 57, 50, 48, 45, 43, 36, 
+            36, 35, 34, 34, 34, 33, 34, 35, 37, 41, 42, 44, 47, 52, 57, 59, 63, 
+            68,
           ],
           a: [
             71, 71, 72, 74, 76, 79, 82, 86, 89, 92, 94, 96, 96, 98, 100, 104,
@@ -686,7 +687,7 @@
             104, 104, 102, 100, 96, 93, 89, 84, 80, 77, 74, 73, 72, 72, 72, 72,
             71, 71, 71, 71, 71, 70, 70, 70, 70, 70, 70, 71, 71, 72, 72, 73, 73,
             74, 74, 74, 75, 74, 72, 71, 69, 69, 68, 67, 64, 58, 52, 47, 42, 40,
-            40, 39, 38, 37, 35, 34, 33, 32, 32, 33, 34, 35, 36, 37, 38, 38,
+            40, 39, 38, 37, 35, 34, 34, 34, 33, 33, 34, 35, 36, 37, 38, 38,
           ],
         },
       };
@@ -902,7 +903,7 @@
         const r = sel && D.r[sel],
           m = sel && M(r);
         if (view == "n")
-          el.innerHTML = `<div class="ring ${m.c <= D.s.t.wL ? "lo" : m.c >= D.s.t.wH ? "hi" : "ok"}"><b>${f(m.c)}</b><span>Glukos, mmol/L</span><i role="img" aria-label="Trend: ${m.tx}">${m.big > 0 ? "↑" : m.big < 0 ? "↓" : m.ar}</i></div><p class="pg">Prognos om 10 min: ${f(m.fc)} mmol/L</p>${chart(r)}<p class="nt">Demo: 1 timme i grafen = 1 minut. Fiktiv data. Endast ett hjälpmedel, inte underlag för behandlingsbeslut.</p>`;
+          el.innerHTML = `<div class="ring ${m.c <= D.s.t.wL ? "lo" : m.c >= D.s.t.wH ? "hi" : "ok"}"><b>${f(m.c)}</b><span>Glukos, mmol/L</span><i role="img" aria-label="Trend: ${m.tx}">${m.big > 0 ? "↑" : m.big < 0 ? "↓" : m.ar}</i></div><p class="pg">Prognos om 10 min: ${f(m.fc)} mmol/L</p>${chart(r)}<p class="nt">Under demo motsvarar varje minut 1 timma i grafen. <br> Fiktiv data, får ej ligga till grund för behandlingsbeslut.</p>`;
         else if (view == "l") {
           const L = D.l.filter((e) => e.p == sel);
           let h = "",
@@ -954,7 +955,8 @@
             rw
               .map(
                 ([k, n]) =>
-                  `<label class="s"><span><input type="checkbox" data-o="${k}"${o[k] ? " checked" : ""}> ${n}</span><input type="number" step="0.1" min="2.5" max="15.5" data-t="${k}" value="${t[k]}" aria-label="${n}"></label>`,
+                  `<div class="s"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-o="${k}"${o[k] ? " checked" : ""}>
+                  <span>${n}</span></label><input type="number" step="0.1" min="2.5" max="15.5" data-t="${k}" value="${t[k]}" aria-label="Tröskelvärde för ${n} i mmol/L"></div>`,
               )
               .join("") +
             `<p id="tm" class="nt" role="alert"></p><label class="s"><span>Larma vid kraftig förändring</span><input type="checkbox" data-o="fa"${o.fa ? " checked" : ""}></label>
